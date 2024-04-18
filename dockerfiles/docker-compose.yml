@@ -1,0 +1,92 @@
+version: '3'
+
+volumes:
+  dbfiles:
+    
+services:
+
+  db:
+    # REMARQUE IMPORTANTE :
+    #  Dans vos config PHP/PDO le serveur de base donnée n'est donc pas "localhost" mais **db**
+    #  le serveur php-fpm et le serveur de base de donnée sont dans des containers (machines) différents....
+    #  docker fournit un pseudo DNS utilisant les nom des *services* définis dans le fichier docker-compose.yml
+    image: mariadb
+    environment:
+      - MARIADB_ROOT_PASSWORD=1234
+    volumes:
+      # persisté mais non accessible depuis l'hôte
+      # passer par adminer, phpmyadmin ou 
+      #        docker compose exec db mariadb -u root -p (mdp : 1234)
+      - dbfiles:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+
+  adminer:
+    image: adminer
+    ports:
+      #LA: utile ? 
+      - 8889:8080
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      #LA: Utile ?
+      - 8890:80
+
+  # PHP fpm sur port standard (9000). Voir le fichier  mon_php.docker pour les
+  # customisations : commandes Unix utiles, php extention (PDO, mysql...)
+  #                  package PECL xdebug
+  #                  installation de php composer
+  mon_php:
+    build:
+      context: .
+      dockerfile: mon_php.docker
+    #container_name: mon_php
+    ports:
+      - 9000:9000
+    #   9000 est le port  par défaut de php fpm
+    #command: php -S 0.0.0.0:8888
+    volumes:
+      - ../app:/app
+      - ./fpm.ini:/usr/local/etc/php/conf.d/docker-fpm.ini
+      - ./docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+
+  # nginx en proxy sur port externe 8884
+  #                - quelques fichiers statiques
+  #                - quelques fichiers/répertoires INTERDITS
+  #                - le reste est considéré comme des routes slim à forwarder vers php:fpm index.php
+  #
+  # C'est donc plutôt une configuration "développement" où il est facile d'ajouter des routes dans slim.
+  #
+  # voir le fichier ./nginxconf/default.conf
+  nginx:
+    image: nginx
+    ports:
+      - 8884:80
+    volumes:
+      # Document root/contenu - Accessible directement depuis l'hôte
+      - ../app:/usr/share/nginx/html/
+      # Répertoire de configuration - Accesible directement depuis l'hôte
+      - ./nginxconf:/etc/nginx/conf.d/:ro
+      # - ../logs/nginx:/var/log/nginx/
+      
+  # apache en proxy sur port externe 8885
+  #                - quelques fichiers statiques
+  #                - quelques fichiers/répertoires INTERDITS
+  #                - le reste est considéré comme des routes slim à forwarder vers php:fpm index.php
+  #
+  #  C'est donc plutôt une configuration "développement" où il est facile d'ajouter des routes dans slim.
+  #
+  # voir le fichier ./apache2.conf
+  apache:
+    image: httpd
+    ports:
+      - 8885:80
+    volumes:
+      # Document root/contenu - Accessible directement depuis l'hôte
+      - ../app:/usr/local/apache2/htdocs
+      # Logs -  Accessible directement depuis l'hôte. 
+      - ../logs/apache:/var/log/www
+      # Config apache éditable directement depuis l'hôte pour + de practicité
+      # le fichier est commenté (marqueurs LA: ou JLM:)
+      - ./apache2.conf:/usr/local/apache2/conf/httpd.conf

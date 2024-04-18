@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block tilte %}Ajout Fichier{% endblock %}
+{% block morehead %}
+{% endblock %}
+{% block content %}
+
+<form method="POST" action="{{url_for('drop')}}" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="titre">Titre (maximum 40 characters)
+        <input type="text" id="titre" name="titre" placeholder="Entrez le titre de votre fichier" required maxlength = "40"
+        {# {% if info['titre'] is defined %} valeur="{{info['titre']}}" {% endif %} #}
+        >
+        {# {% if erreur['titre'] is defined %} <div>{{erreur['titre']}}</div> {% endif %} #}
+        </label>
+        <label for="description">Description</label>
+        <input type="text" id="description" name="description" placeholder="Entrez votre description" required >
+        {# {% if erreur['description'] is defined %} <div>{{erreur['description']}}</div> {% endif %} #}
+
+        <label for="blob">Votre fichier (format STL) (2M maximum)</label>
+        <input type="file" id="blob" name="blob"  accept=".stl" placeholder="Entrez votre fichier" required >
+    </div>
+    <button type="submit" value="Upload" >Envoyer</button>
+</form> 
+
+{% endblock %}

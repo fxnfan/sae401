@@ -1,0 +1,7 @@
+# Juste pas voir app/ dans le zip car la config docker par
+# du principe le les sources l'appli slim sont dans app/
+# Pour le pourquoi on fait ainsi dans git voir:
+# https://archive.kernel.org/oldwiki/git.wiki.kernel.org/index.php/GitFaq.html#Can_I_add_empty_directories.3F
+
+# Except this file
+!.gitignore

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+  <!-- templates/base.html
+       https://twig.symfony.com/doc/3.x/templates.html -->
+  <head>
+    <meta charset="utf-8">
+    <link href="/assets/style.css" rel="stylesheet" type="text/css" > 
+    <link rel="icon" type="image/png" href="">
+    {% block morehead %}{% endblock %}
+    <title id="titre">{% block title %}3D Drop{% endblock %}</title>
+  </head>
+  <header>
+    <div class="navbar">
+      <div class="logo">3D Drop</div>
+      <div>
+        <a id="blue" href="{{url_for('gallery')}}">Galerie</a>
+        <a id="green" href="{{url_for('formfichier')}}">Fichier +</a>
+        <a id="orange" href="{{url_for('formulaire')}}">Se Connecter</a>
+      </div>
+    </nav>
+  </header>
+  <body> 
+    <div id="content">{% block content %}{% endblock %}</div>
+    <footer>
+      &copy; 2021 - 3D Drop - Chenot
+    </footer>
+  </body>
+
+</html>

@@ -1,0 +1,44 @@
+# PHP FastCGI Process Manager (FPM) 
+# A priori image basée sur un Ubuntu
+# On a besoin d'un serveur php recevant des requêtes de la part
+# d'un serveur web externe, en proxy inverse
+
+# Si modification de la configuration située dans des fichiers partagés avec l'hôte
+# il faut relancer le serveur php-fpm:
+#    % docker restart id de mon_php
+# OU % docker compose restart mon_php
+
+FROM php:fpm
+RUN apt update && apt upgrade -y
+# utile ?
+RUN apt --no-install-recommends -y install git
+# Pour mise au point:
+RUN apt-get  -y  install zip unzip  net-tools netcat-traditional  iproute2 traceroute procps zip unzip
+
+# pdo vers maria db...
+# see: https://stackoverflow.com/questions/44603941/how-to-enable-pdo-mysql-in-the-php-docker-image
+# LA: vraiment besoin de mysqli ? Le maudit.
+RUN docker-php-ext-install mysqli pdo pdo_mysql
+
+# xdebug (see: https://matthewsetter.com/setup-step-debugging-php-xdebug3-docker/)
+RUN pecl install xdebug && docker-php-ext-enable xdebug
+# monter le fichier /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+# pour php composer...
+# Ainsi on pourra se connecter à l'image via docker composer run ... /bin/bash
+# et utiliser un php composer à niveau avec le PHP utilisé par l'image...
+# see: https://getcomposer.org/doc/00-intro.md#docker-image
+#COPY --from=composer/composer:latest-bin /composer /usr/bin/composer
+# Ca ca marche pile poil:
+RUN curl -sS https://getcomposer.org/installer | php -- \
+--install-dir=/usr/bin --filename=composer && chmod +x /usr/bin/composer 
+
+# ou: (https://getcomposer.org/download/)
+#RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+#RUN php -r "if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+#RUN php composer-setup.php
+#RUN php -r "unlink('composer-setup.php');"
+#RUN mv composer.phar /usr/bin/composer
+#RUN chmod +x /usr/bin/composer
+
+WORKDIR /app

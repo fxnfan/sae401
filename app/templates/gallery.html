@@ -1,0 +1,24 @@
+
+{% extends "base.html" %}
+{% block tilte %}Galerie{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+
+<h1 id ="titre-galerie">Galerie de {{ pseudo }}</h1>
+<div class="gallery">
+    {% for fichier in fichiers %}
+        <div class="item">
+            <h2 class="title">{{ fichier.titre }}</h2>
+            <div class="canvas" data-file="{{ fichier.file }}" height="200px"></div>
+            <p class="description">{{ fichier.description }}</p>
+            <p class="date">date d'ajout : {{ fichier.date_crea}}</p>
+        </div>
+    {% endfor %}
+</div>
+
+<script type="module" src="/assets/three.module.js"></script>
+<script type="module" src="/assets/STLLoader.js"></script>
+<script type="module" src="/assets/OrbitControls.js"></script>
+<script type="module" src="/assets/main.js"></script>
+
+{% endblock %}

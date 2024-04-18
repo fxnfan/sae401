@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block tilte %} Fichier Importer{% endblock %}
+{% block content %}
+<h1 class="titre-reussi">Vous avez bien ajouté votre fichier !</h1>
+<div class="content-reussi">
+    <a id="blue" href="{{url_for('gallery')}}">Voir ma galerie</a>
+    <a id="green" href="{{url_for('formfichier')}}">Ajouter un autre fichier</a>
+</div>
+
+{% endblock %}
